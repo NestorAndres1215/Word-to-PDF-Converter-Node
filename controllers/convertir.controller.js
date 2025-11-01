@@ -1,40 +1,44 @@
 const path = require("path");
 const fs = require("fs");
-const { exec } = require("child_process");
 const upload = require("../middlewares/upload");
+const { convertirDocxAPdf } = require("../services/convertir.service");
 
 const convertirArchivo = (req, res) => {
-  upload.single("archivo")(req, res, (err) => {
-    if (err) return res.status(400).send("Error al subir archivo: " + err.message);
-    if (!req.file) return res.status(400).send("No se subió ningún archivo.");
-
-    const archivoSubido = req.file.path;
-    const nombrePDF = req.file.filename.replace(/\.docx$/i, ".pdf");
-    const rutaSalida = path.join("output", nombrePDF);
-
-    const comando = `powershell -ExecutionPolicy Bypass -File "${path.resolve("convert.ps1")}" -inputPath "${path.resolve(archivoSubido)}" -outputPath "${path.resolve(rutaSalida)}"`;
-
-    exec(comando, (error) => {
-      fs.unlink(archivoSubido, () => {}); // eliminar DOCX original
-
-      if (error || !fs.existsSync(rutaSalida)) {
-        return res.status(500).send("Error al convertir el archivo.");
+  upload.single("archivo")(req, res, async (err) => {
+    try {
+      if (err) {
+        return res.status(400).json({ mensaje: "Error al subir archivo", detalle: err.message });
       }
 
-      res.redirect(`/descarga?archivo=${encodeURIComponent(nombrePDF)}`);
-    });
+      if (!req.file) {
+        return res.status(400).json({ mensaje: "No se subió ningún archivo" });
+      }
+
+      const archivoSubido = req.file.path;
+
+      // Llamamos al service
+      const nombrePDF = await convertirDocxAPdf(archivoSubido);
+
+      return res.redirect(`/descarga?archivo=${encodeURIComponent(nombrePDF)}`);
+
+    } catch (error) {
+      return res.status(500).json({
+        mensaje: "Error al convertir el archivo",
+        detalle: error.message,
+      });
+    }
   });
 };
 
 const mostrarDescarga = (req, res) => {
   const nombreArchivo = req.query.archivo;
-  const rutaArchivo = path.join(__dirname, "../output", nombreArchivo);
+  const rutaArchivo = path.resolve("output", nombreArchivo);
 
   if (!fs.existsSync(rutaArchivo)) {
-    return res.status(404).send("Archivo no encontrado.");
+    return res.status(404).json({ mensaje: "Archivo no encontrado" });
   }
 
-  res.sendFile(path.join(__dirname, "../views", "descargar.html"));
+  return res.sendFile(path.resolve("views", "descargar.html"));
 };
 
 module.exports = { convertirArchivo, mostrarDescarga };

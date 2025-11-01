@@ -1,28 +1,29 @@
 const express = require("express");
 const path = require("path");
 const fs = require("fs");
-
 const convertirRoutes = require("./routes/convertir.routes");
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
-// Middlewares estáticos
-app.use(express.static("public"));
-app.use("/output", express.static(path.join(__dirname, "output")));
-app.use("/views", express.static(path.join(__dirname, "views")));
-app.use(express.static(path.join(__dirname, "public")));
-
-// Rutas
-app.use("/", convertirRoutes);
-
-// Crear carpetas necesarias si no existen
+// ✅ Crear carpetas necesarias al iniciar
 ["uploads", "output"].forEach((dir) => {
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir);
+  const ruta = path.resolve(dir);
+  if (!fs.existsSync(ruta)) {
+    fs.mkdirSync(ruta, { recursive: true });
+    console.log(`📁 Carpeta creada: ${ruta}`);
   }
 });
 
+// ✅ Middlewares
+app.use(express.urlencoded({ extended: true })); // Para <form> POST
+app.use(express.static(path.resolve("public"))); // Archivos estáticos (CSS, JS, imágenes)
+app.use("/output", express.static(path.resolve("output"))); // Para servir PDFs
+
+// ✅ Rutas
+app.use("/", convertirRoutes);
+
+// ✅ Servidor
 app.listen(PORT, () => {
-  console.log(`Servidor escuchando en http://localhost:${PORT}`);
+  console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
 });
