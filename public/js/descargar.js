@@ -1,27 +1,32 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const archivo = new URLSearchParams(window.location.search).get("archivo");
+  const params = new URLSearchParams(window.location.search);
+  const archivo = params.get("archivo");
+
   const card = document.querySelector(".card");
   const link = document.querySelector("#download-link");
 
-  if (!card) return; // Previene errores si se cambia la vista
+  if (!card) return; // Evita errores si el contenedor no existe
 
-  // ✅ Si existe archivo válido → Mostrar botón de descarga
+  // ✅ Caso éxito: archivo disponible
   if (archivo && link) {
     const archivoSeguro = encodeURIComponent(archivo);
+
     link.href = `/output/${archivoSeguro}`;
     link.download = archivo;
-    requestAnimationFrame(() => link.classList.add("visible")); // animación suave
+
+    // Mostrar el botón suavemente
+    setTimeout(() => link.classList.add("visible"), 50);
     return;
   }
 
-  // ❌ Si no hay archivo → Mostrar mensaje de error
+  // ❌ Caso error: archivo no encontrado
   card.innerHTML = `
     <div class="error-message fade-in">
-      <i class="fas fa-exclamation-triangle"></i>
-      <h1>No se encontró el archivo</h1>
-      <p>Puede que el archivo haya expirado o no exista.</p>
+      <i class="fas fa-exclamation-circle"></i>
+      <h1>Archivo no encontrado</h1>
+      <p>El archivo solicitado no existe o pudo haber sido eliminado.</p>
       <a class="btn btn-secondary" href="/">
-        <i class="fas fa-home"></i> Volver al inicio
+        <i class="fas fa-arrow-left"></i> Volver al inicio
       </a>
     </div>
   `;

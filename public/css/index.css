@@ -60,6 +60,7 @@ h1::after {
   border-radius: 2px;
 }
 
+
 .upload-area {
   border: 2px dashed var(--secondary);
   border-radius: 10px;
@@ -157,6 +158,7 @@ h1::after {
     transform: scale(0, 0);
     opacity: 0.5;
   }
+
   100% {
     transform: scale(30, 30);
     opacity: 0;
@@ -178,6 +180,7 @@ h1::after {
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -203,6 +206,7 @@ h1::after {
 }
 
 @keyframes bounce {
+
   0%,
   20%,
   50%,
@@ -210,13 +214,16 @@ h1::after {
   100% {
     transform: translateY(0) translateX(-50%);
   }
+
   40% {
     transform: translateY(-20px) translateX(-50%);
   }
+
   60% {
     transform: translateY(-10px) translateX(-50%);
   }
 }
+
 /* Loader overlay */
 .loader-overlay {
   position: fixed;
@@ -229,7 +236,8 @@ h1::after {
   justify-content: center;
   align-items: center;
   z-index: 9999;
-  display: none; /* Oculto al inicio */
+  display: none;
+  /* Oculto al inicio */
 }
 
 .loader-box {
